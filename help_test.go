@@ -256,6 +256,49 @@ func TestShowSubcommandHelp_CommandAliases(t *testing.T) {
 	}
 }
 
+func TestShowSubcommandHelp_CommandUsageText(t *testing.T) {
+	app := &App{
+		Commands: []Command{
+			{
+				Name:      "frobbly",
+				UsageText: "this is usage text",
+			},
+		},
+	}
+
+	output := &bytes.Buffer{}
+	app.Writer = output
+	app.Run([]string{"foo", "frobbly", "--help"})
+
+	if !strings.Contains(output.String(), "this is usage text") {
+		t.Errorf("expected output to include usage text; got: %q", output.String())
+	}
+}
+
+func TestShowSubcommandHelp_SubcommandUsageText(t *testing.T) {
+	app := &App{
+		Commands: []Command{
+			{
+				Name: "frobbly",
+				Subcommands: []Command{
+					{
+						Name:      "bobbly",
+						UsageText: "this is usage text",
+					},
+				},
+			},
+		},
+	}
+
+	output := &bytes.Buffer{}
+	app.Writer = output
+	app.Run([]string{"foo", "frobbly", "bobbly", "--help"})
+
+	if !strings.Contains(output.String(), "this is usage text") {
+		t.Errorf("expected output to include usage text; got: %q", output.String())
+	}
+}
+
 func TestShowAppHelp_HiddenCommand(t *testing.T) {
 	app := &App{
 		Commands: []Command{
